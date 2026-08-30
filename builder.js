@@ -502,7 +502,7 @@ const POST_LINKS = {
   'crosshair-crosshairs': 'community/crosshairs.html',
   'crosshair-scope': 'community/image-section.html?cat=crosshair-scope&title=Scope',
   'crosshair-hitmarker': 'community/image-section.html?cat=crosshair-hitmarker&title=Hitmarker',
-  'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings',
+  'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings&filetype=txt',
   'css-ready': 'community/section.html?cat=css-ready&title=Ready%20CSS',
   'maps-official-infected': 'community/section.html?cat=maps-official-infected&title=Infected',
   'maps-official-tdm': 'community/section.html?cat=maps-official-tdm&title=TDM',
@@ -517,6 +517,12 @@ const GALLERY_SECTIONS = {
   'crosshair-crosshairs': { cat: 'crosshair', title: 'Community Crosshairs' },
   'crosshair-scope': { cat: 'crosshair-scope', title: 'Community Scopes' },
   'crosshair-hitmarker': { cat: 'crosshair-hitmarker', title: 'Community Hitmarkers' },
+};
+
+/* Leaf nodes that show a live-rendered community FILE gallery (uploaded
+   documents like .txt, not images) directly on the placeholder page. */
+const FILE_GALLERY_SECTIONS = {
+  'settings-ready': { cat: 'settings-ready', title: 'Community Ready Settings', ext: 'txt' },
 };
 
 function renderContent(){
@@ -594,6 +600,12 @@ function renderContent(){
         <div class="crosshair-gallery" id="crosshairGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}
+    ${FILE_GALLERY_SECTIONS[node.id] ? `
+      <div class="gallery-wrap">
+        <h3 class="gallery-heading">${FILE_GALLERY_SECTIONS[node.id].title || 'Community Files'}</h3>
+        <div class="file-gallery" id="fileGallery"><div class="gallery-empty">Loading...</div></div>
+      </div>
+    ` : ''}
   `;
 
   if(POST_LINKS[node.id]){
@@ -605,6 +617,10 @@ function renderContent(){
 
   if(GALLERY_SECTIONS[node.id]){
     loadCrosshairGallery(GALLERY_SECTIONS[node.id].cat);
+  }
+
+  if(FILE_GALLERY_SECTIONS[node.id]){
+    loadFileGallery(FILE_GALLERY_SECTIONS[node.id].cat);
   }
 
   el.querySelectorAll('.child-card').forEach(card => {
@@ -710,6 +726,72 @@ async function loadCrosshairGallery(cat){
         const { error } = await sb.from('posts').delete().eq('id', id);
         if(error){ alert('Failed to delete: ' + error.message); return; }
         loadCrosshairGallery(cat);
+      });
+    });
+  } catch(e) {
+    if(container) container.innerHTML = `<div class="gallery-empty">Failed to load gallery.</div>`;
+  }
+}
+
+async function loadFileGallery(cat){
+  const container = document.getElementById('fileGallery');
+  if(!container || typeof sb === 'undefined') return;
+
+  try {
+    const currentUser = typeof getSessionUser === 'function' ? await getSessionUser() : null;
+
+    const { data, error } = await sb
+      .from('posts')
+      .select('*, profiles!posts_author_id_fkey(username,display_name,avatar_url)')
+      .eq('status', 'published')
+      .eq('category', cat)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if(error){ container.innerHTML = `<div class="gallery-empty">Failed to load: ${escapeHtml(error.message)}</div>`; return; }
+    if(!data.length){ container.innerHTML = `<div class="gallery-empty">Nothing posted here yet. Be the first!</div>`; return; }
+    if(document.getElementById('fileGallery') !== container) return; /* navigated away */
+
+    container.innerHTML = data.map(p => {
+      const isOwner = currentUser && p.author_id === currentUser.id;
+      const filename = (p.title || 'file').replace(/[^a-z0-9-_]+/gi, '_').toLowerCase();
+      return `
+      <div class="file-card">
+        <div class="file-icon">📄</div>
+        <div class="file-info">
+          <div class="gallery-title">${escapeHtml(p.title)}</div>
+          <div class="gallery-meta">by ${escapeHtml(p.profiles?.display_name || '?')} · ${formatDate(p.created_at)}</div>
+        </div>
+        <div class="gallery-actions">
+          <a class="gallery-btn" href="${p.content}" download="${filename}" target="_blank" rel="noopener">Download</a>
+          ${isOwner ? `
+            <button class="gallery-btn" data-action="edit" data-id="${p.id}" data-title="${escapeHtml(p.title)}">Edit</button>
+            <button class="gallery-btn" data-action="delete" data-id="${p.id}">Delete</button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    container.querySelectorAll('[data-action="edit"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const currentTitle = btn.getAttribute('data-title');
+        const newTitle = prompt('Edit title:', currentTitle);
+        if(newTitle === null || !newTitle.trim() || newTitle.trim() === currentTitle) return;
+        const { error } = await sb.from('posts').update({ title: newTitle.trim() }).eq('id', id);
+        if(error){ alert('Failed to update: ' + error.message); return; }
+        loadFileGallery(cat);
+      });
+    });
+
+    container.querySelectorAll('[data-action="delete"]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Delete this post? This cannot be undone.')) return;
+        const id = btn.getAttribute('data-id');
+        const { error } = await sb.from('posts').delete().eq('id', id);
+        if(error){ alert('Failed to delete: ' + error.message); return; }
+        loadFileGallery(cat);
       });
     });
   } catch(e) {

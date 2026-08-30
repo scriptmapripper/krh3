@@ -249,6 +249,16 @@ ul.tree ul.tree{margin-left:16px; border-left:1px dashed var(--border-strong); p
 }
 .gallery-btn:hover{ color:var(--text-0); background:rgba(255,255,255,.08); }
 
+.file-gallery{ display:flex; flex-direction:column; gap:12px; }
+.file-card{
+  display:flex; align-items:center; gap:14px;
+  border:1px solid var(--border); border-radius:14px; padding:14px 16px;
+  background:rgba(255,255,255,.02);
+}
+.file-icon{ font-size:26px; line-height:1; flex-shrink:0; }
+.file-info{ flex:1; min-width:0; }
+.file-card .gallery-actions{ justify-content:flex-end; margin-top:0; flex-shrink:0; }
+
 /* ---------- resource list (downloadable scripts) ---------- */
 .resource-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:18px; margin-bottom:26px;}
 .resource-card{
