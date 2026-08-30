@@ -62,15 +62,9 @@ document.getElementById("feedHeading").textContent = `All ${TITLE} Posts`;
 async function boot() {
   me = await getSessionUser();
   const nav = document.getElementById("topnav");
+  nav.innerHTML = "";
 
   if (me) {
-    const profile = await getMyProfile();
-    let links = `<a href="dashboard.html">Dashboard</a>`;
-    if (profile.role === "admin" || profile.role === "developer") links += `<a href="admin.html">Admin Panel</a>`;
-    if (profile.role === "developer") links += `<a href="developer.html">Developer Panel</a>`;
-    links += `<span style="color:var(--text-1); font-size:13.5px; margin-left:4px;">${escapeHtml(profile.display_name)} ${roleBadge(profile.role)}</span>`;
-    links += `<a href="settings.html" style="margin-left:6px;">Settings</a>`;
-    nav.innerHTML = links;
     document.getElementById("logoutCard").style.display = "block";
     document.getElementById("btnLogout").addEventListener("click", async (e) => {
       e.preventDefault();
@@ -80,8 +74,6 @@ async function boot() {
 
     document.getElementById("submitCard").style.display = "block";
     document.getElementById("loginPrompt").style.display = "none";
-  } else {
-    nav.innerHTML = `<a href="login.html">Login</a><a href="signup.html">Sign Up</a>`;
   }
 
   loadFeed();

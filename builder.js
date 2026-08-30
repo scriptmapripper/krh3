@@ -190,13 +190,6 @@ const EMBEDS = {
   'scripts-krunkscript-generator': 'ks-generator.html',
   'scripts-krunkscript-docs-kr': 'kr-docs/index.html',
   'scripts-krunkscript-docs-swatdoge': 'https://krdocs.swatdoge.eu/',
-  'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings',
-  'css-ready': 'community/section.html?cat=css-ready&title=Ready%20CSS',
-  'maps-official-infected': 'community/section.html?cat=maps-official-infected&title=Infected',
-  'maps-official-tdm': 'community/section.html?cat=maps-official-tdm&title=TDM',
-  'maps-custom-parkour': 'community/section.html?cat=maps-custom-parkour&title=Parkour',
-  'mods-files': 'community/section.html?cat=mods-files&title=Mods%20Files',
-  'scripts-userscript-hack': 'community/section.html?cat=scripts-userscript-hack&title=Hack%20Script',
 };
 
 /* Leaf nodes that get a real downloadable resource list instead of the
@@ -410,9 +403,18 @@ function renderResourceList(node, main, path, crumbs, color){
       <div class="content-head" style="margin-top:26px;">
         <h2 style="margin:0;">Community Submissions</h2>
       </div>
-      <iframe class="embed-frame" src="community/section.html?cat=${encodeURIComponent(COMMUNITY_SECTIONS[node.id].cat)}&title=${encodeURIComponent(COMMUNITY_SECTIONS[node.id].title)}" title="${COMMUNITY_SECTIONS[node.id].title} community submissions" loading="lazy"></iframe>
+      ${manualEmbedNodeId === node.id
+        ? `<iframe class="embed-frame" src="community/section.html?cat=${encodeURIComponent(COMMUNITY_SECTIONS[node.id].cat)}&title=${encodeURIComponent(COMMUNITY_SECTIONS[node.id].title)}" title="${COMMUNITY_SECTIONS[node.id].title} community submissions" loading="lazy"></iframe>`
+        : `<button class="btn-createpost" id="btnCreatePostResource" style="margin-bottom:0;">Create Post</button>`}
     ` : ''}
   `;
+
+  if(COMMUNITY_SECTIONS[node.id] && manualEmbedNodeId !== node.id){
+    document.getElementById('btnCreatePostResource').addEventListener('click', () => {
+      manualEmbedNodeId = node.id;
+      renderResourceList(node, main, path, crumbs, color);
+    });
+  }
 
   el.querySelectorAll('.resource-card').forEach(card => {
     card.addEventListener('click', () => openResourceModal(list[+card.getAttribute('data-idx')]));
@@ -498,6 +500,13 @@ function renderLinkPage(node, main, crumbs){
    "Create Post" button that loads the real community post page on demand. */
 const POST_LINKS = {
   'crosshair-crosshairs': 'community/crosshairs.html',
+  'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings',
+  'css-ready': 'community/section.html?cat=css-ready&title=Ready%20CSS',
+  'maps-official-infected': 'community/section.html?cat=maps-official-infected&title=Infected',
+  'maps-official-tdm': 'community/section.html?cat=maps-official-tdm&title=TDM',
+  'maps-custom-parkour': 'community/section.html?cat=maps-custom-parkour&title=Parkour',
+  'mods-files': 'community/section.html?cat=mods-files&title=Mods%20Files',
+  'scripts-userscript-hack': 'community/section.html?cat=scripts-userscript-hack&title=Hack%20Script',
 };
 
 /* Leaf nodes that should show a live-rendered community gallery
