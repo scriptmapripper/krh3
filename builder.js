@@ -500,6 +500,8 @@ function renderLinkPage(node, main, crumbs){
    "Create Post" button that loads the real community post page on demand. */
 const POST_LINKS = {
   'crosshair-crosshairs': 'community/crosshairs.html',
+  'crosshair-scope': 'community/image-section.html?cat=crosshair-scope&title=Scope',
+  'crosshair-hitmarker': 'community/image-section.html?cat=crosshair-hitmarker&title=Hitmarker',
   'settings-ready': 'community/section.html?cat=settings-ready&title=Ready%20Settings',
   'css-ready': 'community/section.html?cat=css-ready&title=Ready%20CSS',
   'maps-official-infected': 'community/section.html?cat=maps-official-infected&title=Infected',
@@ -512,7 +514,9 @@ const POST_LINKS = {
 /* Leaf nodes that should show a live-rendered community gallery
    (decoded from posted codes) directly on the placeholder page. */
 const GALLERY_SECTIONS = {
-  'crosshair-crosshairs': { cat: 'crosshair' },
+  'crosshair-crosshairs': { cat: 'crosshair', title: 'Community Crosshairs' },
+  'crosshair-scope': { cat: 'crosshair-scope', title: 'Community Scopes' },
+  'crosshair-hitmarker': { cat: 'crosshair-hitmarker', title: 'Community Hitmarkers' },
 };
 
 function renderContent(){
@@ -586,7 +590,7 @@ function renderContent(){
     <div class="status-note">This section mirrors the site mindmap — structure only, content to be filled in as the hub is built out.</div>
     ${GALLERY_SECTIONS[node.id] ? `
       <div class="gallery-wrap">
-        <h3 class="gallery-heading">Community Crosshairs</h3>
+        <h3 class="gallery-heading">${GALLERY_SECTIONS[node.id].title || 'Community Posts'}</h3>
         <div class="crosshair-gallery" id="crosshairGallery"><div class="gallery-empty">Loading...</div></div>
       </div>
     ` : ''}

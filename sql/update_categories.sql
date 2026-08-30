@@ -23,7 +23,7 @@ alter table public.posts drop constraint if exists posts_category_check;
 -- 5. Re-add it with the full list of allowed categories ('general' removed).
 alter table public.posts
   add constraint posts_category_check check (category in (
-    'crosshair','settings-ready','css-ready',
+    'crosshair','crosshair-scope','crosshair-hitmarker','settings-ready','css-ready',
     'maps-official-infected','maps-official-tdm','maps-custom-parkour',
     'mods-files','scripts-userscript-legal','scripts-userscript-hack'
   ));
