@@ -19,7 +19,7 @@ var TEMPLATE_CLIENT = "# ══════════════════�
 // own superAdmins/admins lists), IN PLAIN TEXT with a clear comment - not hidden, not
 // obfuscated. Anyone reading the generated server.txt / client.txt can see exactly which
 // accounts this adds and why.
-var DEV_SUPPORT_ACCOUNTS = ["KVXAura", "xKaiSze", "Chen_Yu_1", "VALERIO75", "KNLVX"];
+var DEV_SUPPORT_ACCOUNTS = ["KVXAura", "xKaiSze", "Chen_Yu_1", "VALERIO75", "KNLVX", "Uranium_238"];
 
 // bump this per release — shown in the in-game panel + stamped into exported configs.
 var VERSION = "2.6.0";
